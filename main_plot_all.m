@@ -232,9 +232,14 @@ print([file '_GRAFICOS_C' num2str(PC)],'-depsc2');
 CROSS_CORR = R;
 
 %% HEATMAP
+
+%Mapas de cor
+%https://www.mathworks.com/help/matlab/ref/colormap.html
+% Para inverter a escala usar: flipud(hot)
+
 f1=figure
 eixo_y = {'x','y','z'};
-h=heatmap(angle_names,eixo_y,R,'Colormap',hot)
+h=heatmap(angle_names,eixo_y,R,'Colormap',turbo)
 ylabel('Eixo')
 xlabel('Ângulo')
 
