@@ -8,3 +8,5 @@ https://biomechanical-toolkit.github.io/
 main_plot_all: code to calculate the PCA of a single individual and plot the component and reconstruction.
 
 heatmap_contagem_PCA: code to evaluate the individuals' cross-correlation in a heatmap using threshold or max pooling. 
+
+main_automatic: code to process all components, including the generation of correlation analysis. Figures, workspace and variables are automatic saved in a chosen file. 
