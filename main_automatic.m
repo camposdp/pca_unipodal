@@ -22,7 +22,6 @@ angle_set = [1 5 ... %hip (dois lados)
 fs= 200; %frequência de amostragem
 
 
-
 %Cortar dados a partir de qual %?
 %e.g. de 10% a 90%: xi = 0.1, xf = 0.9
 % xi = 0.1;  
@@ -53,7 +52,11 @@ fprintf('\n')
 prompt3 = 'Quantas Componentes Analisar? Digite o número: ';
 N_PC = input(prompt3);
 
+fprintf('\n')
+prompt5 = 'Mostrar gráficos? [S/N] ';
+fig_flag = input(prompt5,'s');
 
+R_ALL = [];
 
 for DIR = 1:2
     
@@ -139,6 +142,8 @@ PM = angle_mean + d_norm.*score(:,PC)*coeff(:,PC)';
 %% Gráfico comparando original vs projeção
 t = 0:1/fs:(length(angle_matrix)-1)/fs;
 
+
+if fig_flag=='S'
 f2 = figure
 tile = tiledlayout(3,M,'TileSpacing','tight');
 xlabel(tile,'Tempo (s)')
@@ -146,10 +151,15 @@ ylabel(tile,'Ângulo')
 title_string = ['PC = ' num2str(PC) ', Explicado: ' num2str(explained(PC),'%.2f') '%'];
 title(tile,title_string)
 fSize = 6;
+end
+
 for j = 1:M
 index = j;   
 ix = (j-1)*3+1;   
-    
+
+
+
+if fig_flag=='S'
 %subplot(M,3,ix)
 nexttile(j)
 hold all
@@ -193,8 +203,9 @@ s = ['PC = ' num2str(PC) ' - ' angle_names{index} ' - Z '];
 %title(s);
 ax = gca;
 ax.FontSize = fSize;    
-
 f2.Position = [100 80 1200 600];
+
+end
 
 [c1,p1] = corrcoef(angle_matrix(:,ix),PM(:,ix));
 [c2,p2] = corrcoef(angle_matrix(:,ix+1),PM(:,ix+1));
@@ -209,9 +220,17 @@ P(3,j)= p3(2,1);
 
 
 end
+
+if fig_flag=='S'
 set(gcf, 'Renderer', 'Painters');
 print([file num2str(DIR) '_GRAFICOS_C' num2str(PC)],'-depsc2');
+end
+
 CROSS_CORR = R;
+s_mx = size(R);
+R_row = reshape(R,1,s_mx(1)*s_mx(2));
+R_ALL = [R_ALL;R_row]; 
+CROSS_CORR_ALL = R_ALL; %clone da var
 
 %% HEATMAP
 
@@ -219,20 +238,23 @@ CROSS_CORR = R;
 %https://www.mathworks.com/help/matlab/ref/colormap.html
 % Para inverter a escala usar: flipud(hot)
 
+if fig_flag=='S'
 f1=figure
 eixo_y = {'x','y','z'};
 h=heatmap(angle_names,eixo_y,R,'Colormap',turbo)
 ylabel('Eixo')
 xlabel('Ângulo')
-
+end
 
 %% save everything
-
+if fig_flag=='S'
 f1.Position = [100 100 1000 350];
 h.CellLabelFormat = '%.2f';
 print([file num2str(DIR) '_HEATMAP_C' num2str(PC)],'-depsc2');
-save([file num2str(DIR) '_WORKSPACE_C' num2str(PC)])
+
 %Explained e CORR em excel
+end
+
 
 xlswrite([file num2str(DIR) '_CROSSCOR_C' num2str(PC) '.xlsx'],CROSS_CORR)
 xlswrite([file num2str(DIR) '_EXPLAINED_C' num2str(PC) '.xlsx'],explained)
@@ -268,6 +290,8 @@ for i = 1:length(angle_names)
     k = k +1;
     end
 end
+
+if fig_flag=='S'
 f2=figure;
 
 h=heatmap(var_name,var_name,Rx,'Colormap',parula);
@@ -278,12 +302,19 @@ f2.Position = [100 100 1200 1200];
 h.CellLabelFormat = '%.2f';
 
 print([file num2str(DIR) '_HEATMAP_CORR'],'-depsc2');
+end
 
 xlswrite([file num2str(DIR) '_AUTOCORR' '.xlsx'],AUTOCORR);
 
+xlswrite([file num2str(DIR) '_CROSSCOR_ALL' '.xlsx'],R_ALL);
 
+save([file num2str(DIR) '_WORKSPACE'])
+
+
+R_ALL = [];
 clear angle_matrix
 close all
+
 end
 
 cd ..
